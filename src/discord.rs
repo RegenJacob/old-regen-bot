@@ -4,26 +4,20 @@ use crate::fun::FUN_GROUP;
 use crate::voice::VOICE_GROUP;
 use songbird::SerenityInit;
 
+use serenity::client::{Context, EventHandler};
+use serenity::model::user::OnlineStatus;
 use serenity::{
+    async_trait,
+    framework::standard::{
+        macros::{command, group},
+        CommandResult, StandardFramework,
+    },
     model::{
-        gateway::{Ready, Activity},
+        gateway::{Activity, Ready},
         prelude::Message,
     },
-    async_trait,
-    Client,
-    framework::standard::{
-        StandardFramework,
-        CommandResult,
-        macros::{
-            command,
-            group
-        }
-    },
-    Result as SerenityResult,
+    Client, Result as SerenityResult,
 };
-use serenity::client::{EventHandler, Context};
-use serenity::model::user::OnlineStatus;
-
 
 #[group]
 #[commands(help)]
@@ -33,9 +27,7 @@ struct Handler;
 
 #[tokio::main]
 pub async fn start() {
-
-    let token = env::var("DISCORD_TOKEN")
-        .expect("DISCORD_TOKEN not in environment");
+    let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not in environment");
 
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("."))
@@ -50,7 +42,6 @@ pub async fn start() {
         .await
         .expect("Error creating Client");
 
-
     if let Err(why) = client.start_shards(2).await {
         println!("Client error: {:?}", why);
     }
@@ -60,7 +51,11 @@ pub async fn start() {
 impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         if let Some(shard) = ready.shard {
-            ctx.shard.set_activity(Option::from(Activity::playing(format!("Auf Shard: {}", ctx.shard_id))));
+            ctx.shard
+                .set_activity(Option::from(Activity::playing(format!(
+                    "Auf Shard: {}",
+                    ctx.shard_id
+                ))));
             ctx.shard.set_status(OnlineStatus::Idle);
 
             // Note that array index 0 is 0-indexed, while index 1 is 1-indexed.
@@ -68,9 +63,7 @@ impl EventHandler for Handler {
             // This may seem unintuitive, but it models Discord's behaviour.
             println!(
                 "{} is connected on shard {}/{}!",
-                ready.user.name,
-                shard[0],
-                shard[1],
+                ready.user.name, shard[0], shard[1],
             );
         }
     }

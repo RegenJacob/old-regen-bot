@@ -1,13 +1,8 @@
 mod discord;
-mod voice;
 mod fun;
-
-use discord::start;
+mod voice;
 
 fn main() {
     println!("Hello, world!");
-    start();
-
-
-
+    discord::start();
 }

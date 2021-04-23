@@ -12,8 +12,7 @@ use serenity::{
     framework::{
         standard::{
             macros::{command, group},
-            Args,
-            CommandResult,
+            Args, CommandResult,
         },
         StandardFramework,
     },
@@ -22,24 +21,17 @@ use serenity::{
     Result as SerenityResult,
 };
 
-use songbird::{
-    input::{
-        self,
-        restartable::Restartable,
-    },
-    Event,
-    EventContext,
-    EventHandler as VoiceEventHandler,
-    TrackEvent,
-};
 use crate::discord::check_msg;
+use songbird::{
+    input::{self, restartable::Restartable},
+    Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent,
+};
 
 #[group]
 #[commands(
     deafen, join, leave, mute, play_fade, play, skip, stop, undeafen, unmute
 )]
 struct Voice;
-
 
 #[command]
 async fn deafen(ctx: &Context, msg: &Message) -> CommandResult {
@@ -57,7 +49,7 @@ async fn deafen(ctx: &Context, msg: &Message) -> CommandResult {
             check_msg(msg.reply(ctx, "Not in a voice channel").await);
 
             return Ok(());
-        },
+        }
     };
 
     let mut handler = handler_lock.lock().await;
@@ -96,7 +88,7 @@ async fn join(ctx: &Context, msg: &Message) -> CommandResult {
             check_msg(msg.reply(ctx, "Not in a voice channel").await);
 
             return Ok(());
-        },
+        }
     };
 
     let manager = songbird::get(ctx)
@@ -177,8 +169,9 @@ struct ChannelDurationNotifier {
 #[async_trait]
 impl VoiceEventHandler for ChannelDurationNotifier {
     async fn act(&self, _ctx: &EventContext<'_>) -> Option<Event> {
-        let count_before = self.count.fetch_add(1, Ordering::Relaxed);
         /*
+        let count_before = self.count.fetch_add(1, Ordering::Relaxed);
+
         check_msg(
             self.channel_id
                 .say(
@@ -198,7 +191,6 @@ impl VoiceEventHandler for ChannelDurationNotifier {
 #[command]
 #[only_in(guilds)]
 async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
-
     let guild = msg.guild(&ctx.cache).await.unwrap();
     let guild_id = guild.id;
 
@@ -213,9 +205,8 @@ async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
             check_msg(msg.reply(ctx, "Not in a voice channel").await);
 
             return Ok(());
-        },
+        }
     };
-
 
     let manager = songbird::get(ctx)
         .await
@@ -261,7 +252,7 @@ async fn mute(ctx: &Context, msg: &Message) -> CommandResult {
             check_msg(msg.reply(ctx, "Not in a voice channel").await);
 
             return Ok(());
-        },
+        }
     };
 
     let mut handler = handler_lock.lock().await;
@@ -296,7 +287,7 @@ async fn play_fade(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
             );
 
             return Ok(());
-        },
+        }
     };
 
     if !url.starts_with("http") {
@@ -328,7 +319,7 @@ async fn play_fade(ctx: &Context, msg: &Message, mut args: Args) -> CommandResul
                 check_msg(msg.channel_id.say(&ctx.http, "Error sourcing ffmpeg").await);
 
                 return Ok(());
-            },
+            }
         };
 
         // This handler object will allow you to, as needed,
@@ -427,7 +418,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             );
 
             return Ok(());
-        },
+        }
     };
 
     let guild = msg.guild(&ctx.cache).await.unwrap();
@@ -452,7 +443,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                     check_msg(msg.channel_id.say(&ctx.http, "Error sourcing ffmpeg").await);
 
                     return Ok(());
-                },
+                }
             };
 
             handler.enqueue_source(source.into());
@@ -472,7 +463,6 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                     .await,
             );
         }
-
     } else {
         if let Some(handler_lock) = manager.get(guild_id) {
             let mut handler = handler_lock.lock().await;
@@ -488,7 +478,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                     check_msg(msg.channel_id.say(&ctx.http, "Error sourcing ffmpeg").await);
 
                     return Ok(());
-                },
+                }
             };
 
             handler.enqueue_source(source.into());
@@ -509,7 +499,6 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             );
         }
     }
-
 
     Ok(())
 }
@@ -641,4 +630,3 @@ async fn unmute(ctx: &Context, msg: &Message) -> CommandResult {
 
     Ok(())
 }
-
