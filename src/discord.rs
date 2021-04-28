@@ -1,10 +1,12 @@
 use std::env;
 
 use crate::fun::FUN_GROUP;
+use crate::jacob::JACOB_GROUP;
 use crate::voice::VOICE_GROUP;
 use songbird::SerenityInit;
 
 use serenity::client::{Context, EventHandler};
+use serenity::http::Http;
 use serenity::model::user::OnlineStatus;
 use serenity::{
     async_trait,
@@ -18,21 +20,43 @@ use serenity::{
     },
     Client, Result as SerenityResult,
 };
+use std::collections::HashSet;
+use serenity::prelude::{TypeMapKey, Mutex};
+use std::sync::Arc;
+use serenity::client::bridge::gateway::ShardManager;
+
+pub struct ShardManagerContainer;
+
+impl TypeMapKey for ShardManagerContainer {
+    type Value = Arc<Mutex<ShardManager>>;
+}
 
 #[group]
-#[commands(help)]
+//#[commands()]
 struct General;
 
 struct Handler;
 
-#[tokio::main]
 pub async fn start() {
     let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not in environment");
 
+    let http = Http::new_with_token(&token);
+
+    let (owners, _bot_id) = match http.get_current_application_info().await {
+        Ok(info) => {
+            let mut owners = HashSet::new();
+            owners.insert(info.owner.id);
+
+            (owners, info.id)
+        }
+        Err(why) => panic!("Could not access application info: {:?}", why),
+    };
+
     let framework = StandardFramework::new()
-        .configure(|c| c.prefix("."))
+        .configure(|c| c.prefix(".").owners(owners))
         .group(&GENERAL_GROUP)
         .group(&FUN_GROUP)
+        .group(&JACOB_GROUP)
         .group(&VOICE_GROUP);
 
     let mut client = Client::builder(&token)
@@ -42,8 +66,20 @@ pub async fn start() {
         .await
         .expect("Error creating Client");
 
-    if let Err(why) = client.start_shards(2).await {
-        println!("Client error: {:?}", why);
+    {
+        let mut data = client.data.write().await;
+        data.insert::<ShardManagerContainer>(client.shard_manager.clone());
+    }
+
+    let shard_manager = client.shard_manager.clone();
+
+    tokio::spawn(async move {
+        tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
+        shard_manager.lock().await.shutdown_all().await;
+    });
+
+    if let Err(why) = client.start().await {
+        eprintln!("Client error: {:?}", why);
     }
 }
 
@@ -69,26 +105,9 @@ impl EventHandler for Handler {
     }
 }
 
-#[command]
-async fn help(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.channel_id.send_message(&ctx.http, |m|{
-        m.embed(|e|{
-            e.title("Commands");
-            e.description("Das ist eine Liste der Commands");
-            e.field("`.uff`", "Ja...", false);
-            e.footer(|f| {
-                f.text("Coded by RegenJacob");
-                f.icon_url("https://cdn.discordapp.com/avatars/399247382916628480/6044316f7ab2bf0a9bba69c17736d08f.png");
-                f
-            })
-        })
-    }).await.unwrap();
-
-    Ok(())
-}
 
 pub fn check_msg(result: SerenityResult<Message>) {
     if let Err(why) = result {
-        println!("Error sending message: {:?}", why);
+        eprintln!("Error sending message: {:?}", why);
     }
 }

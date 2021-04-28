@@ -190,6 +190,8 @@ impl VoiceEventHandler for ChannelDurationNotifier {
 
 #[command]
 #[only_in(guilds)]
+#[aliases("die")]
+#[description("Leaves the Voice Channel the bot is currently in")]
 async fn leave(ctx: &Context, msg: &Message) -> CommandResult {
     let guild = msg.guild(&ctx.cache).await.unwrap();
     let guild_id = guild.id;

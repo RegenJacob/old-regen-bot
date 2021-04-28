@@ -1,8 +1,11 @@
 mod discord;
 mod fun;
+mod jacob;
 mod voice;
+mod wiki;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     println!("Hello, world!");
-    discord::start();
+    discord::start().await;
 }

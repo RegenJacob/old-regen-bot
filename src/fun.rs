@@ -4,7 +4,6 @@ use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::Args;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
-use std::collections::HashMap;
 use std::time::Duration;
 use uwuifier::uwuify_str_sse;
 
@@ -49,11 +48,11 @@ async fn mcstatus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
                     ip.clone()
                 ));
                 e.field(
-                    format!("Spieler:"),
+                    "Spieler:",
                     format!("{}/{}", status.players.online, status.players.max),
                     false,
                 );
-                e.field(format!("Ping:"), format!("{}ms", latency), false);
+                e.field("Ping:", format!("{}ms", latency), false);
                 e
             })
         })
@@ -145,7 +144,7 @@ async fn joke(ctx: &Context, msg: &Message) -> CommandResult {
             msg.channel_id
                 .send_message(&ctx.http, |m| {
                     m.embed(|e| {
-                        e.description(format!("{}", p["joke"].as_str().unwrap()));
+                        e.description(p["joke"].as_str().unwrap());
                         e.footer(|f| {
                             f.text("source https://sv443.net/jokeapi/v2/");
                             f.icon_url("https://sv443.net/jokeapi/v2/favicon.ico");
