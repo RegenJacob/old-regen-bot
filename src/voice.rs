@@ -409,8 +409,9 @@ impl VoiceEventHandler for SongEndNotifier {
 
 #[command]
 #[only_in(guilds)]
-async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let url = match args.single::<String>() {
+async fn play(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    let mut a = args.clone();
+    let url = match a.single::<String>() {
         Ok(url) => url,
         Err(_) => {
             check_msg(
@@ -437,7 +438,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
             // Here, we use lazy restartable sources to make sure that we don't pay
             // for decoding, playback on tracks which aren't actually live yet.
-            let source = match Restartable::ytdl(url, true).await {
+            let source = match Restartable::ytdl(url , true).await {
                 Ok(source) => source,
                 Err(why) => {
                     println!("Err starting source: {:?}", why);
@@ -454,7 +455,7 @@ async fn play(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 msg.channel_id
                     .say(
                         &ctx.http,
-                        format!("Added song to queue: position {}", handler.queue().len()),
+                        format!("Added to queue: position {:?}" ,handler.queue().len()),
                     )
                     .await,
             );

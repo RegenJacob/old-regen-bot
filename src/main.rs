@@ -1,11 +1,11 @@
 mod discord;
 mod fun;
-mod jacob;
+mod owner;
 mod voice;
 mod wiki;
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
+    println!("Starting Bot!");
     discord::start().await;
 }

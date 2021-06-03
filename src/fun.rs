@@ -1,9 +1,9 @@
 use crate::discord::check_msg;
-use serenity::client::Context;
-use serenity::framework::standard::macros::{command, group};
+use serenity::{framework::standard::macros::{command, group}, model::id::UserId};
 use serenity::framework::standard::Args;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
+use serenity::client::Context;
 use std::time::Duration;
 use uwuifier::uwuify_str_sse;
 
@@ -12,7 +12,7 @@ fn uwuify(input: &str) -> String {
 }
 
 #[group]
-#[commands(mcstatus, uwu, panzer, unsee, joke)]
+#[commands(mcstatus, uwu, panzer, unsee, joke, mcname)]
 pub struct Fun;
 
 #[command]
@@ -57,6 +57,44 @@ async fn mcstatus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
             })
         })
         .await?;
+    Ok(())
+}
+
+#[command]
+async fn mcname(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let username = args.single::<String>().unwrap();
+
+    let client = reqwest::Client::new()
+        .get(format!("https://some-random-api.ml/mc?username={}", username))
+        //.header("username", "RegenJacob")
+        .send()
+        .await?;
+
+    if client.status().as_u16() != 200 {
+        msg.channel_id.send_message(&ctx.http, |m| {
+            m.embed(|e| {
+                e.title(format!("{} exestiert nicht!", username));
+                e.description("oder ein anderer Fehler ist aufgetreten");
+                e.footer(|f| {
+                    f.text(format!("{} error code", client.status()))
+                })
+            })
+        }).await?;
+    }
+
+    let body = client.text().await?;
+
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+       m.embed(|e| {
+           e.title(format!("Infos über {}", username));
+           e.thumbnail(format!("https://minotar.net/helm/{}/100.png", username));
+           e.description(body)
+       })
+    }).await;
+
+
+
     Ok(())
 }
 
@@ -159,3 +197,24 @@ async fn joke(ctx: &Context, msg: &Message) -> CommandResult {
 
     Ok(())
 }
+
+#[command]
+async fn user(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    if args.remains() == None {
+        msg.channel_id
+            .send_message(&ctx.http, |m| {
+                m.embed(|e| {
+                    e.title(format!("Info über {}", msg.author.name));
+
+                    e
+                })
+            })
+            .await?;
+    } else {
+        msg.channel_id.send_message(&ctx.http, |m| {
+            m.content("Not implementet yet!")
+        }).await?;
+    }
+    Ok(())
+}
+
