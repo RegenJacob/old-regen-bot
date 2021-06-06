@@ -42,7 +42,10 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 f.text("https://wikipedia.org/");
                 f.icon_url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/150px-Wikipedia-logo-v2.svg.png")
             });
-            e.thumbnail(image.nth(0).unwrap().url);
+            //e.thumbnail(image.nth(0).unwrap().url);
+            image.for_each(|image| {
+                e.image(image.url);
+            });
             e
         })
     }).await?;
