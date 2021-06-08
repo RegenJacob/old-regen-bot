@@ -1,19 +1,22 @@
 use crate::discord::check_msg;
-use serenity::{framework::standard::macros::{command, group}, model::id::UserId};
+use serenity::client::Context;
+use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::Args;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
-use serenity::client::Context;
 use std::time::Duration;
-#[cfg(target_feature = "sse4.1")] 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use uwuifier::uwuify_str_sse;
 
-#[cfg(target_feature = "sse4.1")] 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 fn uwuify(input: &str) -> String {
     uwuify_str_sse(input)
 }
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+fn uwuify(input: &str) -> String {
+    "Not implemented! :("
+}
 
 #[group]
 #[commands(mcstatus, uwu, panzer, unsee, joke, mcname)]
@@ -69,44 +72,44 @@ async fn mcname(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let username = args.single::<String>().unwrap();
 
     let client = reqwest::Client::new()
-        .get(format!("https://some-random-api.ml/mc?username={}", username))
+        .get(format!(
+            "https://some-random-api.ml/mc?username={}",
+            username
+        ))
         //.header("username", "RegenJacob")
         .send()
         .await?;
 
     if client.status().as_u16() != 200 {
-        msg.channel_id.send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                e.title(format!("{} exestiert nicht!", username));
-                e.description("oder ein anderer Fehler ist aufgetreten");
-                e.footer(|f| {
-                    f.text(format!("{} error code", client.status()))
+        msg.channel_id
+            .send_message(&ctx.http, |m| {
+                m.embed(|e| {
+                    e.title(format!("{} exestiert nicht!", username));
+                    e.description("oder ein anderer Fehler ist aufgetreten");
+                    e.footer(|f| f.text(format!("{} error code", client.status())))
                 })
             })
-        }).await?;
+            .await?;
     }
 
     let body = client.text().await?;
 
-
-    msg.channel_id.send_message(&ctx.http, |m| {
-       m.embed(|e| {
-           e.title(format!("Infos über {}", username));
-           e.thumbnail(format!("https://minotar.net/helm/{}/100.png", username));
-           e.description(body)
-       })
-    }).await?;
+    msg.channel_id
+        .send_message(&ctx.http, |m| {
+            m.embed(|e| {
+                e.title(format!("Infos über {}", username));
+                e.thumbnail(format!("https://minotar.net/helm/{}/100.png", username));
+                e.description(body)
+            })
+        })
+        .await?;
 
     Ok(())
 }
 
 #[command]
 async fn uwu(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    #[target_feature(enable = "sse4.1")]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     let output: String = uwuify(args.rest());
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    let output = "Error not implemented";
 
     msg.channel_id
         .send_message(&ctx.http, |m| {
@@ -217,10 +220,9 @@ async fn user(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             })
             .await?;
     } else {
-        msg.channel_id.send_message(&ctx.http, |m| {
-            m.content("Not implementet yet!")
-        }).await?;
+        msg.channel_id
+            .send_message(&ctx.http, |m| m.content("Not implementet yet!"))
+            .await?;
     }
     Ok(())
 }
-

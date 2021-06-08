@@ -11,23 +11,17 @@ use serenity::{
     client::{
         bridge::gateway::GatewayIntents, bridge::gateway::ShardManager, Context, EventHandler,
     },
-    framework::standard::{
-        macros::{command, group},
-        CommandResult, StandardFramework,
-    },
+    framework::standard::{macros::group, StandardFramework},
     http::Http,
     model::{
         gateway::{Activity, Ready},
         prelude::Message,
-        user::OnlineStatus,
     },
     prelude::TypeMapKey,
     Client, Result as SerenityResult,
 };
 use std::collections::HashSet;
 use std::sync::Arc;
-use serenity::futures::AsyncWriteExt;
-use std::iter::FromIterator;
 
 pub struct ShardManagerContainer;
 
@@ -53,13 +47,13 @@ pub async fn start() {
 
     let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
-            let mut team = info.team.unwrap();
-            let mut members = team.members;
+            let team = info.team.unwrap();
+            let members = team.members;
             let mut owners = HashSet::new();
 
-            for x in members  {
+            for x in members {
                 owners.insert(x.user.id);
-            };
+            }
 
             (owners, info.id)
         }
@@ -95,7 +89,7 @@ pub async fn start() {
         tokio::signal::ctrl_c()
             .await
             .expect("Could not register ctrl+c handler");
-        println!("Shutting down bot!");
+        println!("\nShutting down bot!");
         shard_manager.lock().await.shutdown_all().await;
     });
 

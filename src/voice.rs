@@ -438,7 +438,7 @@ async fn play(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
             // Here, we use lazy restartable sources to make sure that we don't pay
             // for decoding, playback on tracks which aren't actually live yet.
-            let source = match Restartable::ytdl(url , true).await {
+            let source = match Restartable::ytdl(url, true).await {
                 Ok(source) => source,
                 Err(why) => {
                     println!("Err starting source: {:?}", why);
@@ -455,7 +455,7 @@ async fn play(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 msg.channel_id
                     .say(
                         &ctx.http,
-                        format!("Added to queue: position {:?}" ,handler.queue().len()),
+                        format!("Added to queue: position {:?}", handler.queue().len()),
                     )
                     .await,
             );

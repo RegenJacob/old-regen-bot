@@ -1,9 +1,9 @@
+use serenity::builder::CreateEmbed;
 use serenity::client::Context;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::Args;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
-use wikipedia::iter::Image;
 
 #[group]
 #[commands(wikisearch)]
@@ -27,7 +27,6 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     }
 
     let page = wiki.page_from_title(results[0].to_string());
-    let image = page.get_images().unwrap();
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -42,11 +41,8 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 f.text("https://wikipedia.org/");
                 f.icon_url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/150px-Wikipedia-logo-v2.svg.png")
             });
-            //e.thumbnail(image.nth(0).unwrap().url);
-            image.for_each(|image| {
-                e.image(image.url);
-            });
             e
+
         })
     }).await?;
     Ok(())
