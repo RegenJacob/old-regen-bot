@@ -27,7 +27,7 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     }
 
     let page = wiki.page_from_title(results[0].to_string());
-    let mut image = page.get_images().unwrap();
+    let image = page.get_images().unwrap();
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {

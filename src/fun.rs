@@ -5,11 +5,15 @@ use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
 use serenity::client::Context;
 use std::time::Duration;
+#[cfg(target_feature = "sse4.1")] 
 use uwuifier::uwuify_str_sse;
 
+#[cfg(target_feature = "sse4.1")] 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 fn uwuify(input: &str) -> String {
     uwuify_str_sse(input)
 }
+
 
 #[group]
 #[commands(mcstatus, uwu, panzer, unsee, joke, mcname)]
@@ -91,16 +95,18 @@ async fn mcname(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
            e.thumbnail(format!("https://minotar.net/helm/{}/100.png", username));
            e.description(body)
        })
-    }).await;
-
-
+    }).await?;
 
     Ok(())
 }
 
 #[command]
 async fn uwu(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    #[target_feature(enable = "sse4.1")]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     let output: String = uwuify(args.rest());
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    let output = "Error not implemented";
 
     msg.channel_id
         .send_message(&ctx.http, |m| {

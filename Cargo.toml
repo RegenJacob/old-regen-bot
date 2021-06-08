@@ -17,3 +17,8 @@ serde = "1.0.125"
 serde_json = "1.0.64"
 serde_derive = "1.0.125"
 wikipedia = "0.3.4"
+
+[profile.release]
+lto = true
+debug = false
+codegen-units = 1
