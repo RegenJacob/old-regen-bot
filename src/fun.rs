@@ -19,8 +19,27 @@ fn uwuify(input: &str) -> String {
 }
 
 #[group]
-#[commands(mcstatus, uwu, panzer, unsee, joke, mcname)]
+#[commands(mcstatus, uwu, panzer, unsee, joke, mcname, meme)]
 pub struct Fun;
+
+#[command]
+async fn meme(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let number = match args.single::<i32>() {
+        Ok(number) => number,
+        Err(_) => 1 as i32
+    };
+
+    if number < 20 {
+        msg.reply(&ctx.http, "number Can't be higher then 20!").await?;
+        return Ok(());
+    }
+
+    while number >= 0 {
+        msg.reply(&ctx.http, "Hi").await?;
+    } 
+
+    Ok(())
+}
 
 #[command]
 async fn mcstatus(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
