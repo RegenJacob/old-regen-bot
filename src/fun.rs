@@ -15,7 +15,7 @@ fn uwuify(input: &str) -> String {
 
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 fn uwuify(input: &str) -> String {
-    "Not implemented! :("
+    "Not implemented! :(".to_string()
 }
 
 #[group]
