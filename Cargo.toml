@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serenity = { version = "0.10.7", features = ["client", "cache", "standard_framework", "voice"] }
-songbird = { version = "0.1.6", features= ["builtin-queue"] }
+serenity = { version = "0.10.8", features = ["client","cache","standard_framework","voice", "utils", "unstable_discord_api","collector"] }
+songbird = { version = "0.1.7", features= ["builtin-queue"] }
 reqwest = { version = "0.11", features = ["json"] }
 mcping = "0.2.0"
 uwuify = "0.2.2"

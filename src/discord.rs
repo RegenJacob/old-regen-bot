@@ -22,6 +22,8 @@ use serenity::{
 };
 use std::collections::HashSet;
 use std::sync::Arc;
+use serenity::model::gateway::{ActivityButton, ActivityType};
+use serenity::model::prelude::OnlineStatus;
 
 pub struct ShardManagerContainer;
 
@@ -45,7 +47,7 @@ pub async fn start() {
 
     let http = Http::new_with_token(&token);
 
-    let (owners, _bot_id) = match http.get_current_application_info().await {
+    let (owners, bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
             let team = info.team.unwrap();
             let members = team.members;
@@ -72,6 +74,7 @@ pub async fn start() {
 
     let mut client = Client::builder(&token)
         .event_handler(Handler)
+        .application_id(*bot_id.as_u64())
         .framework(framework)
         .intents(GatewayIntents::all())
         .register_songbird()
@@ -107,7 +110,7 @@ impl EventHandler for Handler {
                     "Auf Shard: {}",
                     ctx.shard_id
                 ))));
-            //ctx.shard.set_status(OnlineStatus::Idle);
+            ctx.shard.set_status(OnlineStatus::Idle);
             ctx.set_activity(Activity::competing("Idk")).await;
 
             // Note that array index 0 is 0-indexed, while index 1 is 1-indexed.

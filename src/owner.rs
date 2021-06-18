@@ -1,5 +1,5 @@
 //! Owner Commands and Infos about the Bot.
-//! the eval command allows the owner or team member to run code
+//! the eval command allows the owner or an team member to run code
 //! Info command shows infos about the bot
 
 use serenity::client::Context;
@@ -8,9 +8,10 @@ use serenity::framework::standard::Args;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Message;
 use std::collections::HashSet;
+use std::convert::Infallible;
 
 #[group]
-#[commands(eval, info)]
+#[commands(eval, info, set_status)]
 pub struct Owner;
 
 #[command]
@@ -22,6 +23,23 @@ async fn eval(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         .await?;
 
     Ok(())
+}
+
+#[command]
+#[help_available(false)]
+#[owners_only]
+async fn set_status(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+
+    match &args.clone().single::<String>().unwrap().as_str() {
+        &"online" => ctx.online().await,
+        &"offline" => ctx.invisible().await,
+        &"dnd" => ctx.dnd().await,
+        &"idle" => ctx.idle().await,
+        _ => {}
+    }
+
+    Ok(())
+
 }
 
 #[command]
