@@ -31,7 +31,7 @@ use songbird::{
 #[commands(
     deafen, join, leave, mute, play_fade, play, skip, stop, undeafen, unmute
 )]
-struct Voice;
+struct Music;
 
 #[command]
 async fn deafen(ctx: &Context, msg: &Message) -> CommandResult {

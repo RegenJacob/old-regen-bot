@@ -1,6 +1,6 @@
 //! Owner Commands and Infos about the Bot.
 //! the eval command allows the owner or an team member to run code
-//! Info command shows infos about the bot
+//! Info command shows info's about the bot
 
 use serenity::client::Context;
 use serenity::framework::standard::macros::{command, group};
@@ -29,17 +29,15 @@ async fn eval(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 #[help_available(false)]
 #[owners_only]
 async fn set_status(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-
-    match &args.clone().single::<String>().unwrap().as_str() {
-        &"online" => ctx.online().await,
-        &"offline" => ctx.invisible().await,
-        &"dnd" => ctx.dnd().await,
-        &"idle" => ctx.idle().await,
+    match args.clone().single::<String>().unwrap().as_str() {
+        "online" => ctx.online().await,
+        "offline" => ctx.invisible().await,
+        "dnd" => ctx.dnd().await,
+        "idle" => ctx.idle().await,
         _ => {}
     }
 
     Ok(())
-
 }
 
 #[command]
@@ -65,7 +63,7 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
                 e.title("Info über den bot:");
                 e.field("Entwickler:", format!("{:?}", owners), true);
                 e.field("Bot ID", bot_id.to_string(), true);
-                e.footer(|f| f.text("Version 1.0"))
+                e.footer(|f| f.text("Version 1.0.0"))
             })
         })
         .await?;

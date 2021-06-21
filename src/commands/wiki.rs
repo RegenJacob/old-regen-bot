@@ -27,6 +27,7 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     }
 
     let page = wiki.page_from_title(results[0].to_string());
+    let mut image = page.get_images().unwrap();
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -41,6 +42,16 @@ async fn wikisearch(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 f.text("https://wikipedia.org/");
                 f.icon_url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/150px-Wikipedia-logo-v2.svg.png")
             });
+            
+            e.thumbnail(image.next().unwrap().url);
+            e.image(image.next().unwrap().url);
+
+            /*
+            image.for_each(|i| {
+                e.field(i.title, i.url, false);
+            });
+            */
+
             e
 
         })

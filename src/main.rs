@@ -1,11 +1,11 @@
 mod discord;
-mod fun;
-mod owner;
-mod voice;
-mod wiki;
+mod commands;
+mod web_interface;
 
 #[tokio::main]
 async fn main() {
-    println!("Starting Bot!");
+    tokio::spawn(async move {
+        web_interface::start().unwrap();
+    });
     discord::start().await;
 }
