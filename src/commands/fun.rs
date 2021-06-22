@@ -7,6 +7,7 @@ use serenity::model::channel::Message;
 use std::time::Duration;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use uwuifier::uwuify_str_sse;
+use std::convert::TryInto;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 fn uwuify(input: &str) -> String {
@@ -15,7 +16,7 @@ fn uwuify(input: &str) -> String {
 
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 fn uwuify(input: &str) -> String {
-    "Not implemented! :(".to_string()
+    "Momentan nicht benutzbar :(".to_string()
 }
 
 #[group]
@@ -24,19 +25,25 @@ pub struct Fun;
 
 #[command]
 async fn meme(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let number = match args.single::<i32>() {
+    let mut number = match args.single::<i32>() {
         Ok(number) => number,
         Err(_) => 1 as i32
     };
 
-    if number < 20 {
-        msg.reply(&ctx.http, "number Can't be higher then 20!").await?;
+    if number > 20 {
+        msg.reply(&ctx.http, "kann nicht mehr als 20 auf einmal!").await?;
         return Ok(());
+    } else if number == 0 {
+        msg.reply(&ctx.http, "Hii").await?;
+        return Ok(());
+    } else {
+        while number >= 1 {
+            number = number - 1;
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            msg.reply(&ctx.http, "Hi").await?;
+        }
     }
 
-    while number >= 0 {
-        msg.reply(&ctx.http, "Hi").await?;
-    } 
 
     Ok(())
 }
@@ -95,7 +102,6 @@ async fn mcname(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             "https://some-random-api.ml/mc?username={}",
             username
         ))
-        //.header("username", "RegenJacob")
         .send()
         .await?;
 
@@ -111,14 +117,29 @@ async fn mcname(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
             .await?;
     }
 
-    let body = client.text().await?;
+    let body: serde_json::Value = serde_json::from_str(&*client.text().await?)?;
 
     msg.channel_id
         .send_message(&ctx.http, |m| {
             m.embed(|e| {
+                e.url(format!("https://namemc.com/profile/{}", body["username"].as_str().unwrap()));
                 e.title(format!("Infos über {}", username));
-                e.thumbnail(format!("https://minotar.net/helm/{}/100.png", username));
-                e.description(body)
+                e.thumbnail(format!("https://minotar.net/helm/{}/100.png", body["username"].as_str().unwrap()));
+                //e.description(format!("Infos über {}", body["username"].as_str().unwrap()));
+                e.field("UUID:", body["uuid"].as_str().unwrap(), false);
+                e.field("Original Name:",format!("{}",body["name_history"][0]["name"].as_str().unwrap()), true);
+
+
+                /*
+                e.field("Name History:",format!("{} -> {}",body["name_history"][0]["name"].as_str().unwrap()  ,body["name_history"][0]["changedToAt"].as_str().unwrap()), true);
+
+                body["name_history"].as_object().iter().for_each(|i| {
+                    println!("{:#?}", i);
+                    e.field("Name History:", format!("{} am {} geändert", i["name"], i["name_history"]), false);
+                });
+                 */
+
+                e
             })
         })
         .await?;
