@@ -26,5 +26,4 @@ base64 = "0.13.0"
 [profile.release]
 lto = true
 debug = false
-panic = "abort"
 opt-level = 3
