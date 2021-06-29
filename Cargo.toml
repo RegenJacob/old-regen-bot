@@ -21,8 +21,10 @@ actix-web = "3.3.2"
 actix-files = "0.5.0"
 actix-utils = "3.0.0"
 actix-session = "0.4.1"
+base64 = "0.13.0"
 
 [profile.release]
 lto = true
 debug = false
-codegen-units = 1
+panic = "abort"
+opt-level = 3

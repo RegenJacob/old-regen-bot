@@ -4,6 +4,7 @@ use crate::commands::fun::FUN_GROUP;
 use crate::commands::owner::OWNER_GROUP;
 use crate::commands::voice::music::MUSIC_GROUP;
 use crate::commands::wiki::WIKI_GROUP;
+use crate::commands::utils::UTILS_GROUP;
 use songbird::SerenityInit;
 
 use serenity::{
@@ -71,6 +72,7 @@ pub async fn start() {
         .group(&FUN_GROUP)
         .group(&OWNER_GROUP)
         .group(&WIKI_GROUP)
+        .group(&UTILS_GROUP)
         .group(&MUSIC_GROUP);
 
     let mut client = Client::builder(&token)
